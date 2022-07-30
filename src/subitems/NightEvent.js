@@ -41,7 +41,7 @@ function VoteTimer(props){
     const [voteTimer, setVoteTimer] = useState(1);
     useEffect(() => {
         if (props.becomeNight) {
-            setVoteTimer(15);
+            setVoteTimer(10);
         }
     }, [props.becomeNight])
 

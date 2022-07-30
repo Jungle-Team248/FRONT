@@ -10,8 +10,8 @@ export default async () => {
         extraHeaders: {
           // "access-control-allow-origin": "https://d17xe7xfw04d2o.cloudfront.net", // 진호
           // "access-control-allow-origin": "https://d2bxvfgokknit.cloudfront.net", // 혜린
-          // "access-control-allow-origin": "https://d2wm85v592lxtd.cloudfront.net", // 재관
-          "access-control-allow-origin": "https://d1cbkw060yb1pg.cloudfront.net", // 해인
+          "access-control-allow-origin": "https://d2wm85v592lxtd.cloudfront.net", // 재관
+          // "access-control-allow-origin": "https://d1cbkw060yb1pg.cloudfront.net", // 해인
           "access-control-allow-credentials": true,
         }
       });

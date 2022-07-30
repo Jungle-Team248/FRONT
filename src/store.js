@@ -27,6 +27,9 @@ let gameInfo = createSlice({
     surviveStatusChange(state, action){
       state[2] = action.payload;
       // console.log('redux surviveStatusChange: ', current(state));
+    },
+    clearGameInfo(state, action){
+      return [null, null, 1];
     }
 }
 });
@@ -48,7 +51,7 @@ let ingameStates = createSlice({
       state.isLoaded = false;
     }
   }
-})
+});
 
 let FriendInfo = createSlice({
   name : 'friendInfo',
@@ -174,7 +177,7 @@ export {store};
 
 export let { setUserId, setProfileImg } = user.actions;
 export let { FriendInfoSet, FriendInfoChange, FriendInfoReset } = FriendInfo.actions;
-export let { turnStatusChange, surviveStatusChange } = gameInfo.actions;
+export let { turnStatusChange, surviveStatusChange, clearGameInfo } = gameInfo.actions;
 export let { clickReady, clearReady, loadComplete, clearLoad } = ingameStates.actions;
 export let { VideoStreamChange, VideoStreamReset } = videoInfo.actions;
 export let { pushNewPlayer, clearChatNewPlayer, clearVideoWindowNewPlayer } = newPlayerBuffer.actions;

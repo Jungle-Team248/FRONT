@@ -328,7 +328,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
 
     // console.log('VideoWindow Before useEffect[gameUserInfo[0]]');
     useEffect(() => {
-        // console.log('VideoWindow useEffect - gameUserInfo[0]? ', gameUserInfo[0]);
+        console.log('VideoWindow useEffect - gameUserInfo? ', gameUserInfo);
         let turnIdx = ((endGame === false) && (gameUserInfo[0] !== null))? peerConnections[gameUserInfo[0]].vIdx : -1;
         if (turnIdx !== -1){
             changeVideo(turnIdx, 0);
@@ -346,7 +346,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
     useEffect(() => {
         if ((endGame === false) && (gameUserInfo[1] !== null)){
             // 기존 예외처리로 [gameUserInfo[1]]?.vIdx 처리 해놓았었으나, 정상적인 경우라면 vIdx가 있어야하므로 ? 제거함. 문제발생시 왜 vIdx가 없는지 디버깅하는 방향이 옳을듯.
-            let turnIdx = peerConnections[gameUserInfo[1]].vIdx; 
+            let turnIdx = peerConnections[gameUserInfo[1]]?.vIdx; 
             // console.log("turnIdx: ", turnIdx);
             (readyAlert && turnIdx) ? setNextTurn(turnIdx) : setNextTurn(null); // 갑자기 누군가 나갔을 떄 다음 턴 주자인 경우 문제생김. 임시방편으로 막아둠,,, 추후 문제시 수정필요
             // console.log("nextTurn: ", nextTurn);
@@ -380,10 +380,16 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
                     const vIdx = peerConnections[userId].vIdx;
                     copyVideos[vIdx].stream = null;
                     copyVideos[vIdx].isDead = false;
+                } else {
+                    const vIdx = peerConnections[userId].vIdx;
+                    copyVideos[vIdx].isDead = false;
                 }
             });
+            
             setVideos(copyVideos);
-            changeVideo(peerConnections[myId].vIdx, 1);
+            setTimeout(()=>{
+                changeVideo(peerConnections[myId].vIdx, 1);
+            }, 100);
         })();
     }, [endGame]);
     

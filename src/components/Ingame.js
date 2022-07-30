@@ -5,7 +5,7 @@ import VideoWindow from './VideoWindow';
 import {socket} from '../script/socket';
 import Chat from './Chat';
 import style from "../css/Ingame.module.css";
-import { clickReady, clearReady, turnStatusChange, surviveStatusChange, FriendInfoChange, FriendInfoReset, VideoStreamReset, pushExiter, clearChatExiter, clearVideoWindowExiter, pushNewPlayer, clearChatNewPlayer, clearVideoWindowNewPlayer, clearLoad } from '../store';
+import { clickReady, clearReady, clearGameInfo, turnStatusChange, surviveStatusChange, FriendInfoChange, FriendInfoReset, VideoStreamReset, pushExiter, clearChatExiter, clearVideoWindowExiter, pushNewPlayer, clearChatNewPlayer, clearVideoWindowNewPlayer, clearLoad } from '../store';
 import { useNavigate, useLocation } from 'react-router-dom';
 import EvilLoader from "../subitems/EvilLoader"
 import { RoleCardCitizen, RoleCardMafia } from '../subitems/RoleCard';
@@ -99,8 +99,8 @@ const Ingame = ({roomId}) => {
                 setTimeout(()=>{
                     setShowWord(false);
                 }, 7000);
-            })
             }, 5000);
+        });
 
         // turn 교체 요청에 대한 응답
         // turn 교체 요청 "openTurn" 콜백으로 넣어도 될듯?
@@ -225,6 +225,7 @@ const Ingame = ({roomId}) => {
             dispatch(clearVideoWindowNewPlayer());
             dispatch(clearChatExiter());
             dispatch(clearVideoWindowExiter());
+            dispatch(clearGameInfo());
             socket.off("notifyNew");
             socket.off("notifyOld");
             socket.off("readyToStart");
