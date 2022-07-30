@@ -368,6 +368,7 @@ const Ingame = ({roomId}) => {
   
                       {/* design : Loader for start */}
                       {
+                          // isStarted가 0, 1, 2로 분기한 경우
                           [null,
                           <EvilLoader />,
                           null][isStarted]

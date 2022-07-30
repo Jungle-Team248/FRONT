@@ -46,25 +46,25 @@ function VoteTimer(props){
     }, [props.becomeNight])
 
     useEffect (() => {
-            if (voteTimer !== 0) {
-                const tick = setInterval(() => {
-                    setVoteTimer(value => value -1)
-                }, 1000);
-                return () => {
-                    clearInterval(tick);
-                }
-            } 
-            else if (voteTimer === 0) {
-                if (props.word != '?'){
-                    console.log('뽑힌 사람', props.submitVote);
-                    socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: props.submitVote}});
-                } else {
-                    // console.log('제출한 제시어', props.submitWord);
-                    socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: props.submitWord}});
-                }
-                props.becomeNightState(false); // 투표 창이 사라짐 setTimeout?
+        if (voteTimer !== 0) {
+            const tick = setInterval(() => {
+                setVoteTimer(value => value -1)
+            }, 1000);
+            return () => {
+                clearInterval(tick);
             }
-        }, [voteTimer]);
+        } 
+        else if (voteTimer === 0) {
+            if (props.word != '?'){
+                console.log('뽑힌 사람', props.submitVote);
+                socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: props.submitVote}});
+            } else {
+                console.log('제출한 제시어', props.submitWord);
+                socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: props.submitWord}});
+            }
+            props.becomeNightState(false);
+        }
+    }, [voteTimer]);
 
     return (
         <>
