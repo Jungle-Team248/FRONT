@@ -286,11 +286,11 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
             othersReadyBuffer.forEach(others => {
                 if (!peerConnections[others.userId]) {
                     notSetBuffer.push(others);
-                    return null;
+                } else {
+                    console.log("vIdx error관련 peerConnections 확인 : ", peerConnections[others.userId]);
+                    const usersIdx = peerConnections[others.userId].vIdx;
+                    setVideo(usersIdx, "asis", "asis", "asis", others.isReady);
                 }
-                console.log("vIdx error관련 peerConnections 확인 : ", peerConnections[others.userId]);
-                const usersIdx = peerConnections[others.userId].vIdx;
-                setVideo(usersIdx, "asis", "asis", "asis", others.isReady);
             });
             dispatch(renewOthersReady(notSetBuffer));
         }
@@ -344,14 +344,15 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
     }, [gameUserInfo[2]]);
 
     useEffect(() => {
-        if ((endGame === false) && (gameUserInfo[1] !== null)){
+        // if ((endGame === false) && (gameUserInfo[1] !== null)){
+        if ((gameUserInfo[1] !== null)){
             // 기존 예외처리로 [gameUserInfo[1]]?.vIdx 처리 해놓았었으나, 정상적인 경우라면 vIdx가 있어야하므로 ? 제거함. 문제발생시 왜 vIdx가 없는지 디버깅하는 방향이 옳을듯.
             let turnIdx = peerConnections[gameUserInfo[1]]?.vIdx; 
             // console.log("turnIdx: ", turnIdx);
             (readyAlert && turnIdx) ? setNextTurn(turnIdx) : setNextTurn(null); // 갑자기 누군가 나갔을 떄 다음 턴 주자인 경우 문제생김. 임시방편으로 막아둠,,, 추후 문제시 수정필요
             // console.log("nextTurn: ", nextTurn);
         }
-    }, [readyAlert]);
+    }, [readyAlert, videos]);
 
     // 투표 시 비디오 전송
     // const videoList = useSelector((state) => state.videoInfo);
@@ -374,6 +375,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
         // console.log("VideoWindow : useEffect - endGame? ", endGame);
         endGame && (()=>{
             const copyVideos = [...videos];
+            console.log(JSON.stringify(copyVideos));
             Object.keys(peerConnections).forEach((userId) => {
                 if (userId != myId) {
                     peerConnections[userId].connection?.close();
@@ -385,13 +387,30 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
                     copyVideos[vIdx].isDead = false;
                 }
             });
-            
+            setNextTurn(null);
+            console.log(JSON.stringify(copyVideos));
             setVideos(copyVideos);
+            console.log(copyVideos);
             setTimeout(()=>{
                 changeVideo(peerConnections[myId].vIdx, 1);
+                console.log(videos);
+                console.log(JSON.stringify(videos));
             }, 100);
+            console.log(videos);
         })();
     }, [endGame]);
+
+    // 디버깅용 임시. videos 변경 확인
+    useEffect(()=>{
+        console.log("videos 변경시 mount 후");
+        console.log(JSON.stringify(peerConnections));
+        console.log(JSON.stringify(videos));
+        return () => {
+            console.log("videos 변경시 cleanup 시");
+            console.log(JSON.stringify(peerConnections));
+            console.log(JSON.stringify(videos));
+        }
+    }, [videos]); 
     
     // {style.videoNow}
     // {nextTurn === 1 ? `${style.gradientborder} ${style.videoObserving}` : style.videoObserving}

@@ -98,7 +98,7 @@ const Ingame = ({roomId}) => {
                 setShowWord(true);
                 setTimeout(()=>{
                     setShowWord(false);
-                }, 7000);
+                }, 6000);
             }, 5000);
         });
 
@@ -177,7 +177,13 @@ const Ingame = ({roomId}) => {
         // 누군가의 exit에 의해 비정상적으로 게임이 종료된 경우
         socket.on("abnormalClose", (data) => {
             setEndGame(true);
-            setResult(data.win);
+            if (data.win == "mafia") {
+                // console.log("마피아 승!");  
+                setResult(1);
+            } else if (data.win == "citizen") {
+                // console.log("시민 승!");
+                setResult(2);
+            }
             resultModalState(true);
             setTimeout(()=>{
                 resultModalState(false);
@@ -381,7 +387,7 @@ const Ingame = ({roomId}) => {
                           {turnQue.map((userId, idx) => {
                               return (
                                   <div className={style.singleTurnInfo}>
-                                      <span className={style.turnNum}>{idx}</span>
+                                      <span className={style.turnNum}>{idx+1}</span>
                                       <span className={style.turnId}>{userId}</span>
                                   </div>
                               );
@@ -422,9 +428,9 @@ function Timer(props){
     }, [props.endGame]);
 
     useEffect (() => {
-        if (props.endGame) {
-            return null;
-        }
+        // if (props.endGame) {
+        //     return ()=>{const a = null;};
+        // }
         if (props.nowplayer !== null){
             if (timer !== 0) {
                 if (timer === 3){

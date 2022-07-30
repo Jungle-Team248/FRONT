@@ -61,8 +61,6 @@ const Chat = ({roomId, endGame}) => {
         setInput("");
     }
 
-
-    // 재관이가 고칠 것임
     useEffect(()=> {
         socket.on("new_message", setNewMsg);
         return ()=>{
