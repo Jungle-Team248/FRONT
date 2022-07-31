@@ -1,5 +1,5 @@
 .emojiBig {
-    z-index: 999;
+    z-index: 10;
     position: absolute;
     -webkit-mask-image: url(../../images/emojimask.png);
     mask-image: url(../../images/emojimask.png);
@@ -32,7 +32,7 @@
 }
 
 .emojiSmall {
-    z-index: 999;
+    z-index: 10;
     position: absolute;
     -webkit-mask-image: url(../../images/emojimask.png);
     mask-image: url(../../images/emojimask.png);

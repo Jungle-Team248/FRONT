@@ -11,7 +11,7 @@ const Chat = ({roomId, endGame}) => {
     const [ input, setInput ] = useState("");
     const inputBox = useRef();
     const chatBox = useRef();
-    const isAlive = useSelector(state=>state.gameInfo[1]);
+    const isAlive = useSelector(state=>state.gameInfo[2]);
     const myId = useSelector(state=>state.user.id);
 
     const newPlayerBuffer = useSelector(state => state.newPlayerBuffer);
