@@ -5,8 +5,8 @@ import Join from './Join';
 // import 'bootstrap/dist/css/bootstrap.min.css';
 import style from "../css/Main.module.css";
 import Birds from "../subitems/Birds";
-import BGM from "./main_culture.mp3";
-import CROW from "./crow_effect.MP3";
+import BGM from "../bgm/main_culture.mp3";
+import CROW from "../bgm/crow_effect.MP3";
 
 
 const Main = () => {

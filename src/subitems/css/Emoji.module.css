@@ -1,0 +1,65 @@
+.emojiBig {
+    z-index: 999;
+    position: absolute;
+    -webkit-mask-image: url(../../images/emojimask.png);
+    mask-image: url(../../images/emojimask.png);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    animation: animateEmojiBig 3s ease-in-out;
+    animation-fill-mode: forwards;
+    width: 70px;
+    -webkit-mask-size: 70px;
+    top: 227px;
+    left: 430px;
+}
+
+@keyframes animateEmojiBig{
+    0% {
+        transform: scale(1.0) translateY(75px);
+        -webkit-transform: scale(1.0) translateY(75px);
+        opacity: 0;
+    }
+    12%, 88% {
+        transform: scale(1.7) translateY(0px);
+        -webkit-transform: scale(1.7) translateY(0px);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.0) translateY(75px);
+        -webkit-transform: scale(1.0) translateY(75px);
+        opacity: 0;
+    }
+}
+
+.emojiSmall {
+    z-index: 999;
+    position: absolute;
+    -webkit-mask-image: url(../../images/emojimask.png);
+    mask-image: url(../../images/emojimask.png);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    animation: animateEmojiSmall 3s ease-in-out;
+    animation-fill-mode: forwards;
+    width: 30px;
+    -webkit-mask-size: 30px;
+    top: 78px;
+    left: 127px;
+}
+
+@keyframes animateEmojiSmall{
+    0% {
+        transform: scale(1.0) translateY(25px);
+        -webkit-transform: scale(1.0) translateY(25px);
+        opacity: 0;
+    }
+    12%, 88% {
+        transform: scale(1.5) translateY(0px);
+        -webkit-transform: scale(1.5) translateY(0px);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.0) translateY(25px);
+        -webkit-transform: scale(1.0) translateY(25px);
+        opacity: 0;
+    }
+}

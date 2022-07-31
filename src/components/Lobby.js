@@ -197,13 +197,13 @@ const Lobby = () => {
                         <button id="citizen" className={style.TapButton} onClick={() => {tapChange(1)}}>CITIZEN</button>
                         <button id="citizen" className={style.TapButton} onClick={() => {tapChange(2)}}>Setting</button> */}
                         <Link to="/lobby/">
-                        <button className={style.utilityBtn} id="rank">RANKING</button>
+                            <button className={style.utilityBtn} id="rank">RANKING</button>
                         </Link>
                         <Link to="/lobby/citizen">
-                        <button className={style.utilityBtn} id="citizen">CITIZEN</button>
+                            <button className={style.utilityBtn} id="citizen">CITIZEN</button>
                         </Link>
                         <Link to="/lobby/setting">
-                        <button className={style.utilityBtn} id="setting">SETTING</button>
+                            <button className={style.utilityBtn} id="setting">SETTING</button>
                         </Link>
                         <button className={style.utilityBtn} id="logout" onClick={btnLogout}>LOGOUT</button>
                     

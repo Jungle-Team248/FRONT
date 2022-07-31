@@ -138,6 +138,33 @@ let othersReadyBuffer = createSlice({
   }
 })
 
+let emojiBuffer = createSlice({
+  name : 'emojiBuffer',
+  initialState : {buffer: [], emoji: [null, null, null, null, null, null, null, null]},
+  reducers : {
+    pushEmoji(state, action) {
+      state.buffer.push(action.payload); // payload : {userId: @@@, emoji: smile}
+    },
+    clearEmojiBuffer(state, action) {
+      state.buffer = [];
+    },
+    setEmoji(state, action) { // payload : {idx: vIdx, emoji: smile}
+      state.emoji[action.payload.idx] = action.payload.emoji;
+    },
+    changeEmoji(state, action) { // payload : [idx1, idx2]
+      const tempEmoji = state.emoji[action.payload[0]];
+      state.emoji[action.payload[0]] = state.emoji[action.payload[1]];
+      state.emoji[action.payload[1]] = tempEmoji;
+    },
+    eraseEmoji(state, action) {
+      state.emoji[action.payload] = null;
+    },
+    clearEmoji(state, action) {
+      state.emoji = [null, null, null, null, null, null, null, null];
+    }
+  }
+})
+
 
 const store = configureStore({
   reducer: {
@@ -148,7 +175,8 @@ const store = configureStore({
     videoInfo : videoInfo.reducer,
     newPlayerBuffer : newPlayerBuffer.reducer,
     exiterBuffer : exiterBuffer.reducer,
-    othersReadyBuffer : othersReadyBuffer.reducer
+    othersReadyBuffer : othersReadyBuffer.reducer,
+    emojiBuffer : emojiBuffer.reducer
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -167,3 +195,4 @@ export let { VideoStreamChange, VideoStreamReset } = videoInfo.actions;
 export let { pushNewPlayer, clearChatNewPlayer, clearVideoWindowNewPlayer } = newPlayerBuffer.actions;
 export let { pushExiter, clearChatExiter, clearVideoWindowExiter } = exiterBuffer.actions;
 export let { pushOthersReady, renewOthersReady, clearOthersReady } = othersReadyBuffer.actions;
+export let { pushEmoji, changeEmoji, eraseEmoji, clearEmojiBuffer, setEmoji, clearEmoji } = emojiBuffer.actions;

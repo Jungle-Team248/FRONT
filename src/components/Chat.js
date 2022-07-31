@@ -98,12 +98,6 @@ const Chat = ({roomId, endGame}) => {
     },[newMsg]);
 
     useEffect(()=>{
-        if (isAlive === 0) {
-            inputBox.current.disabled = true;
-        }
-    },[isAlive]);
-
-    useEffect(()=>{
         chatWindow && chatBox.current?.scrollIntoView(false ,{behavior: 'smooth'});
     },[chatWindow]);
 
@@ -120,7 +114,7 @@ const Chat = ({roomId, endGame}) => {
                 </div>
                 <div className={style.inputBox}>
                     <form id="msg">
-                        <input ref={inputBox} className={style.inputForm} placeholder="메세지를 입력하세요" onChange={handleMessageInput} required type="text"/>
+                        <input ref={inputBox} disabled={isAlive===0} className={style.inputForm} placeholder="메세지를 입력하세요" onChange={handleMessageInput} required type="text"/>
                         <button className={style.sendBtn} onClick={handleMessageSubmit}>SEND</button>
                     </form>
                 </div>

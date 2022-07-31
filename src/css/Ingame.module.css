@@ -130,6 +130,11 @@
 }
 /* design : topSection : END */
 
+/* design : emoji */
+.emojiBox {
+    position: inherit;
+}
+/* design : emoji : END */
 
 /* design : utility buttons */
 .utilityBtn {

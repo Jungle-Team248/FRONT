@@ -5,9 +5,10 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import {socket} from '../script/socket';
 import Video from './Video';
+import { EmojiBig, EmojiSmall } from '../subitems/emoji';
 import { useSelector, useDispatch } from 'react-redux';
 import style from '../css/VideoWindow.module.css'
-import { VideoStreamChange, clearVideoWindowExiter, clearVideoWindowNewPlayer, pushOthersReady, renewOthersReady, clearOthersReady, loadComplete } from '../store';
+import { VideoStreamChange, clearVideoWindowExiter, clearVideoWindowNewPlayer, pushOthersReady, renewOthersReady, clearOthersReady, loadComplete, pushEmoji, clearEmojiBuffer, clearEmoji, setEmoji, changeEmoji } from '../store';
 import {ReadyOnVideoBig, ReadyOnVideoSmall} from '../subitems/ReadyOnVideo';
 import { ASSERT } from '../script/debug';
 
@@ -15,7 +16,6 @@ let myStream;
 let peerConnections = {};
 
 const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
-    // const [ othersReady, setOthersReady ] = useState(null);
     const dispatch = useDispatch();
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
@@ -36,6 +36,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
     const newPlayerBuffer = useSelector(state => state.newPlayerBuffer);
     const othersReadyBuffer = useSelector(state => state.othersReadyBuffer);
     const exiterBuffer = useSelector(state => state.exiterBuffer);
+    const emojiBuffer = useSelector(state => state.emojiBuffer);
     
     const setVideo = (index , userid, stream, image, isReady) => {
         ASSERT(`(0 <= ${index}) && (${index} < 8)`);
@@ -58,7 +59,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
         ASSERT(`(0 <= ${vIdx1}) && (${vIdx1} < 8)`);
         ASSERT(`(0 <= ${vIdx2}) && (${vIdx2} < 8)`);
         if (vIdx1 === vIdx2) {
-            return null;
+            return true;
         }
         const copyVideos = [...videos];
         const userid1 = copyVideos[vIdx1].userid;
@@ -72,6 +73,8 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
         copyVideos[vIdx2] = tempVideoIdx1;
 
         setVideos(copyVideos);
+        dispatch(changeEmoji([vIdx1, vIdx2]));
+        return true;
     }
 
     const clearReady = () => {
@@ -240,6 +243,10 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
                 // console.log(myId, othersId, videos);
                 peerConnections[othersId].connection.addIceCandidate(ice);
             });
+
+            socket.on("newEmoji", data => {
+                dispatch(pushEmoji(data));
+            });
         }
         
         try {
@@ -258,11 +265,14 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
                 track.stop();
             });
             dispatch(clearOthersReady());
+            dispatch(clearEmojiBuffer());
+            dispatch(clearEmoji());
             socket.off("notifyReady");
             socket.off("streamStart");
             socket.off("offer");
             socket.off("answer");
             socket.off("ice");
+            socket.off("newEmoji");
         };
     }, []);
 
@@ -313,6 +323,20 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
         const myIdx = peerConnections[myId]?.vIdx? peerConnections[myId].vIdx: 1;
         setVideo(myIdx, "asis", "asis", "asis", ingameStates.isReady);
     }, [ingameStates.isReady]);
+
+    useEffect(()=>{ // 이모지 띄우는 부분. 일단 버퍼에서 꺼내서 띄우게 하고 3초 후 지우는 걸로 했지만, 비디오가 바뀌면 따라가야하고
+        console.log(JSON.stringify(emojiBuffer));
+        if ( emojiBuffer.buffer.length ) {
+            emojiBuffer.buffer.forEach(data => {
+                const idx = peerConnections[data.userId]?.vIdx;
+                if (idx !== undefined) {
+                    dispatch(setEmoji({idx: idx, emoji: data.emoji}));
+                }
+            });
+            dispatch(clearEmojiBuffer());
+        }
+        
+    }, [emojiBuffer.buffer]);
 
     // console.log('VideoWindow Before useEffect[isStarted]');
     useEffect(()=>{
@@ -423,6 +447,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
                 </div>
                 <div className={style.videoBig}>
                     {/* READY 표시 확인 필요! */}
+                    <EmojiBig newEmoji={emojiBuffer.emoji[0]} idx={0} />
                     {videos[0].isReady? <ReadyOnVideoBig/>: null}  
                     {videos[0].stream? 
                     <Video stream={videos[0].stream} muted={videos[0].userid === myId? true: false} width={"540px"} height={"290px"}/>
@@ -435,6 +460,7 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
                 </div>
                 <div className={style.videoBig}>
                     {/* READY 표시 확인 필요! */}
+                    <EmojiBig newEmoji={emojiBuffer.emoji[1]} idx={1} />
                     {videos[1].isReady? <ReadyOnVideoBig/>: null} 
                     {videos[1].stream?   
                     <Video stream={videos[1].stream} muted={videos[1].userid === myId? true: false} width={"540px"} height={"290px"} isTurn={nextTurn === 1} isDead={videos[1].isDead}/>
@@ -446,45 +472,51 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
     
             <div className={style.videoOthers}>
                 <div className={style.videoMiniRow}>
-                    <div className={style.videoMini} onClick={() => (videos[2].stream? changeVideo(2, 1): null)}>
+                    <div className={style.videoMini} onClick={() => (videos[2].stream? changeVideo(2, 1) : null)}>
                         {/* READY 표시 확인 필요! */}
+                        <EmojiSmall newEmoji={emojiBuffer.emoji[2]} idx={2} />
                         {videos[2].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[2].stream? 
                         <Video stream={videos[2].stream} muted={videos[2].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 2} isDead={videos[2].isDead}/>
                         :<img style={{opacity:videos[2].userid? "100%": "0%", position: 'absolute'}} height="100%" src={videos[2].image}/>}
                     </div>
-                    <div className={style.videoMini} onClick={() => (videos[3].stream? changeVideo(3, 1): null)}>
+                    <div className={style.videoMini} onClick={() => (videos[3].stream? changeVideo(3, 1) : null)}>
                         {/* READY 표시 확인 필요! */}
+                        <EmojiSmall newEmoji={emojiBuffer.emoji[3]} idx={3} />
                         {videos[3].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[3].stream? 
                         <Video stream={videos[3].stream} muted={videos[3].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 3} isDead={videos[3].isDead}/> 
                         :<img style={{opacity:videos[3].userid? "100%": "0%", position: 'absolute'}} height="100%" src={videos[3].image}/>}
                     </div>
-                    <div className={style.videoMini} onClick={() => (videos[4].stream? changeVideo(4, 1): null)}>
+                    <div className={style.videoMini} onClick={() => (videos[4].stream? changeVideo(4, 1) : null)}>
                         {/* READY 표시 확인 필요! */}
+                        <EmojiSmall newEmoji={emojiBuffer.emoji[4]} idx={4} />
                         {videos[4].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[4].stream? 
                         <Video stream={videos[4].stream} muted={videos[4].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 4} isDead={videos[4].isDead}/> 
                         :<img style={{opacity:videos[4].userid? "100%": "0%", position: 'absolute'}} height="100%" src={videos[4].image}/>}
                     </div>
                 </div>
-                <div className={style.videoMiniRow} onClick={() => (videos[5].stream? changeVideo(5, 1): null)}>
+                <div className={style.videoMiniRow} onClick={() => (videos[5].stream? changeVideo(5, 1) : null)}>
                     <div className={style.videoMini}>
                         {/* READY 표시 확인 필요! */}
+                        <EmojiSmall newEmoji={emojiBuffer.emoji[5]} idx={5} />
                         {videos[5].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[5].stream? 
                         <Video stream={videos[5].stream} muted={videos[5].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 5} isDead={videos[5].isDead}/>
                         :<img style={{opacity:videos[5].userid? "100%": "0%", position: 'absolute'}} height="100%" src={videos[5].image}/>}
                     </div>
-                    <div className={style.videoMini} onClick={() => (videos[6].stream? changeVideo(6, 1): null)}>
+                    <div className={style.videoMini} onClick={() => (videos[6].stream? changeVideo(6, 1) : null)}>
                         {/* READY 표시 확인 필요! */}
+                        <EmojiSmall newEmoji={emojiBuffer.emoji[6]} idx={6} />
                         {videos[6].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[6].stream? 
                         <Video stream={videos[6].stream} muted={videos[6].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 6} isDead={videos[6].isDead}/> 
                         :<img style={{opacity:videos[6].userid? "100%": "0%", position: 'absolute'}} height="100%" src={videos[6].image}/>}
                     </div>
-                    <div className={style.videoMini} onClick={() => (videos[7].stream? changeVideo(7, 1): null)}>
+                    <div className={style.videoMini} onClick={() => (videos[7].stream? changeVideo(7, 1) : null)}>
                         {/* READY 표시 확인 필요! */}
+                        <EmojiSmall newEmoji={emojiBuffer.emoji[7]} idx={7} />
                         {videos[7].isReady? <ReadyOnVideoSmall/>: null} 
                         {videos[7].stream? 
                         <Video stream={videos[7].stream} muted={videos[7].userid === myId? true: false} width={"100%"} height={"120px"} isTurn={nextTurn === 7} isDead={videos[7].isDead}/> 

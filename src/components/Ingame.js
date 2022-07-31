@@ -12,6 +12,7 @@ import { RoleCardCitizen, RoleCardMafia } from '../subitems/RoleCard';
 import { NightEventForCitizen, NightEventForMafia } from '../subitems/NightEvent';
 import { ASSERT } from '../script/debug';
 import GameLoader from '../subitems/GameLoader';
+import EmojiBox from '../subitems/EmojiBox';
 
 const Ingame = ({roomId}) => {
     const [ roomEntered, setRoomEntered ] = useState(false);
@@ -372,6 +373,11 @@ const Ingame = ({roomId}) => {
                           {/* design : word and Timer : END */}
                       </div>
   
+                          {/* design : emoji buttons */}
+                      <div className={style.emojiBox}>
+                          <EmojiBox roomId={roomId}/>
+                      </div>
+
                       {/* design : Loader for start */}
                       {
                           [null,
