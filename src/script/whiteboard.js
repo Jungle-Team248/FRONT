@@ -37,11 +37,12 @@ export class Whiteboard {
         // Check whether we're holding the left click down while moving the mouse
         let today = new Date();
 
-        if (e.buttons === 1) { // 왼쪽 버튼 눌렀을 때
-          if (today.getMilliseconds() % 10 != 0) {
-            this._emitDrawingData(e);
-          }
-        }
+        this._emitDrawingData(e);
+        // if (e.buttons === 1) { // 왼쪽 버튼 눌렀을 때
+        //   if (today.getMilliseconds() % 7 != 0) {
+        //     this._emitDrawingData(e);
+        //   }
+        // }
       
       });
 

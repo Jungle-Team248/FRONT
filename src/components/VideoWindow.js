@@ -96,11 +96,12 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
                     sampleSize: 8,
                     echoCancellation: true
                 },
-                video: {
-                    width: {min: 320, ideal: 640, max: 640}, 
-                    height: {min: 240, ideal: 360, max: 480},
-                    frameRate: {min: 21, ideal: 24, max: 27}
-                }
+                video: true
+                // {
+                //     width: {min: 176, ideal: 320, max: 352}, 
+                //     height: {min: 144, ideal: 240, max: 288},
+                //     frameRate: {min: 18, ideal: 21, max: 24}
+                // }
             });
             // myStream.getVideoTracks()[0].applyConstraints(constraints); // 초기 설정 이후 변경하는 방법.
             setVideo(1, "asis", myStream, "asis", ingameStates.isReady);
