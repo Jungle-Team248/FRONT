@@ -59,6 +59,5 @@ const RequireAuth = ({ Component }) => {
     
     // Ingame 컴포넌트인 경우 roomId를 넘겨줌
     return ret[authenticated];
-    
 };
 export { RequireAuth, NotRequireAuth };

@@ -35,11 +35,16 @@ export class Whiteboard {
   
       canvas.addEventListener('mousemove', (e) => {
         // Check whether we're holding the left click down while moving the mouse
-        if (e.buttons === 1) {
-          this._emitDrawingData(e);
+        let today = new Date();
+
+        if (e.buttons === 1) { // 왼쪽 버튼 눌렀을 때
+          if (today.getMilliseconds() % 10 != 0) {
+            this._emitDrawingData(e);
+          }
         }
+      
       });
-  
+
       canvas.addEventListener('click', (e) => {
         this._emitDrawingData(e);
       });

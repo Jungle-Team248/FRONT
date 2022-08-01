@@ -423,7 +423,7 @@ function Timer(props){
 
     useEffect(() => {
         if (props.nowplayer != null){
-            setTimer(7);
+            setTimer(12);
         }
     }, [props.nowplayer])
 

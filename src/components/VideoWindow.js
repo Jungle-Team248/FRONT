@@ -18,7 +18,8 @@ let peerConnections = {};
 const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
     const dispatch = useDispatch();
     const myId = useSelector(state => state.user.id);
-    const myImg = useSelector(state => state.user.profile_img);
+    const myImg = useSelector(state => state.user.profile_img
+        );
     const gameUserInfo = useSelector(state => state.gameInfo); // 현재 turn인 user id, 살았는지
     const [nextTurn, setNextTurn] = useState(null);
     const [videos , setVideos] = useState([                         // refactoring - redux로 전환 필요
@@ -86,30 +87,22 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
         setVideos(videosCleared);
         dispatch(clearOthersReady());
     }
-    
-    async function getCameras() {
-        const cameras = []
-        try {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const videoDevices = devices.filter(device => device.kind === 'videoinput');
-            const currentCamera = myStream.getVideoTracks()[0];
-            cameras.push(currentCamera.deviceId) // 현재 카메라를 맨 첫번째에 배치
-            videoDevices.forEach(camera => {
-                if(currentCamera.deviceId !== camera.deviceId) cameras.push(camera.deviceId); // 현재 카메라 빼고 나머지 뒤로 추가
-            });
-        }
-        catch(e) {
-            console.log(e);
-        }
-        return cameras;
-    }
 
-    async function getMedia(deviceId){
+    async function getMedia(){
         try {
             myStream = await navigator.mediaDevices.getUserMedia({
-                audio: true,
-                video: deviceId ? { deviceId } : true
+                audio: {
+                    sampleRate: 22050,
+                    sampleSize: 8,
+                    echoCancellation: true
+                },
+                video: {
+                    width: {min: 320, ideal: 640, max: 640}, 
+                    height: {min: 240, ideal: 360, max: 480},
+                    frameRate: {min: 21, ideal: 24, max: 27}
+                }
             });
+            // myStream.getVideoTracks()[0].applyConstraints(constraints); // 초기 설정 이후 변경하는 방법.
             setVideo(1, "asis", myStream, "asis", ingameStates.isReady);
             dispatch(loadComplete());
         } catch (e) {
@@ -425,16 +418,16 @@ const VideoWindow = ({readyAlert, isStarted, endGame, needVideos, deadMan}) => {
     }, [endGame]);
 
     // 디버깅용 임시. videos 변경 확인
-    useEffect(()=>{
-        console.log("videos 변경시 mount 후");
-        console.log(JSON.stringify(peerConnections));
-        console.log(JSON.stringify(videos));
-        return () => {
-            console.log("videos 변경시 cleanup 시");
-            console.log(JSON.stringify(peerConnections));
-            console.log(JSON.stringify(videos));
-        }
-    }, [videos]); 
+    // useEffect(()=>{
+    //     console.log("videos 변경시 mount 후");
+    //     console.log(JSON.stringify(peerConnections));
+    //     console.log(JSON.stringify(videos));
+    //     return () => {
+    //         console.log("videos 변경시 cleanup 시");
+    //         console.log(JSON.stringify(peerConnections));
+    //         console.log(JSON.stringify(videos));
+    //     }
+    // }, [videos]); 
     
     // {style.videoNow}
     // {nextTurn === 1 ? `${style.gradientborder} ${style.videoObserving}` : style.videoObserving}

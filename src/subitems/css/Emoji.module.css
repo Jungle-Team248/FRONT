@@ -20,8 +20,8 @@
         opacity: 0;
     }
     12%, 88% {
-        transform: scale(1.7) translateY(0px);
-        -webkit-transform: scale(1.7) translateY(0px);
+        transform: scale(2.0) translateY(0px);
+        -webkit-transform: scale(2.0) translateY(0px);
         opacity: 1;
     }
     100% {
