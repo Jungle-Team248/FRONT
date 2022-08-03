@@ -1,7 +1,7 @@
 // // 진호
-let domain = "mafiarte.click";
-export const paddr = `https://${domain}/`;
-export const reqHeaders = { withCredentials: true, origin: "https://d17xe7xfw04d2o.cloudfront.net" };
+// let domain = "mafiarte.click";
+// export const paddr = `https://${domain}/`;
+// export const reqHeaders = { withCredentials: true, origin: "https://d17xe7xfw04d2o.cloudfront.net" };
 
 // // // 혜린
 // let domain = "hyerexx.click";
@@ -14,7 +14,7 @@ export const reqHeaders = { withCredentials: true, origin: "https://d17xe7xfw04d
 // export const reqHeaders = { withCredentials: true, origin: "https://d2wm85v592lxtd.cloudfront.net" };
 
 // // 해인
-// let domain = "haein-sidee.click";
-// export const paddr = `https://${domain}/`;
-// export const reqHeaders = { withCredentials: true, origin: "https://d1cbkw060yb1pg.cloudfront.net" };
+let domain = "haein-sidee.click";
+export const paddr = `https://${domain}/`;
+export const reqHeaders = { withCredentials: true, origin: "https://d1cbkw060yb1pg.cloudfront.net" };
 

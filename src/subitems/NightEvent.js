@@ -7,7 +7,7 @@ import Video from '../components/Video';
 const NightEventForCitizen = (props) => {
     const videoList = useSelector((state) => state.videosStore);
     const [ submitVote, submitVoteState ] = useState(null); // 투표 제출 @ 타이머
-    // console.log(videoList);
+    // console.log('비디오 리스트 : ', videoList);
     const len = videoList.filter(x => x.userid && x.isDead === 'false').length;
     
     return(

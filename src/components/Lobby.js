@@ -12,6 +12,7 @@ import style from '../css/Lobby.module.css';
 import { InvitationCard } from '../subitems/InvitationCard';
 import { InviteCard } from '../subitems/InviteCard';
 import MyFriend from '../subitems/MyFriend';
+import GameRoom from '../subitems/GameRoom';
 
 const Lobby = () => {
 
@@ -174,8 +175,7 @@ const Lobby = () => {
                     <div className={style.profileSection}>
                         <img className={style.lobbyLogo} src='/img/smallLogo.png'></img>
                         <div className={style.prifileImg}>
-                            {/* imgURL 갈아야 함 */}
-                            {/* <img src={profile_img} className={style.test}/> */}
+                            <img src={profile_img} className={style.realProfileImg}/>
                         </div>
 
                         <div className={style.nickname}>
@@ -190,39 +190,37 @@ const Lobby = () => {
 
                 </div>
 
-                <div className={style.MainLobbyContent}>
-                    
-                    <div className={style.MainLobbyTap}>
-                    
-                        {/* <button id="rank" className={style.TapButton} onClick={() => {tapChange(0)}}>RANKING</button>
-                        <button id="citizen" className={style.TapButton} onClick={() => {tapChange(1)}}>CITIZEN</button>
-                        <button id="citizen" className={style.TapButton} onClick={() => {tapChange(2)}}>Setting</button> */}
-                        <Link to="/lobby/">
-                            <button className={style.utilityBtn} id="rank">RANKING</button>
-                        </Link>
-                        <Link to="/lobby/citizen">
-                            <button className={style.utilityBtn} id="citizen">CITIZEN</button>
-                        </Link>
+                <div className={style.lobbyMiddle}> 
+                    <MyFriend/>
+                </div>
+
+                <div className={style.lobbyRight}>
+                    <GameRoom/>
+                </div>
+                
+
+                {/* <div className={style.MainLobbyTap}>
                         <Link to="/lobby/setting">
-                            <button className={style.utilityBtn} id="setting">SETTING</button>
+                        <button className={style.utilityBtn} id="setting">SETTING</button>
                         </Link>
                         <button className={style.utilityBtn} id="logout" onClick={btnLogout}>LOGOUT</button>
                     
                     </div>
 
-
                     <div className={style.MainLobbyTapContents}>
+                        
                         <Routes>
                             <Route path="/" element={<Rank/>}/>
                             <Route path="citizen" element={<Citizen/>}/>
                             <Route path="setting" element={<Setting/>}/>
                         </Routes>
-                    </div>
-                        
-                </div>
+                    </div> */}
                 
                 {/*side*/}
                 {/* <div className={style.rank}></div> */}
+            </div>
+            <div className={style.MainLobbyTap}>
+                <button className={style.utilityBtn} id="logout" onClick={btnLogout}>LOGOUT</button>
             </div>
 
             {/* 친구 초대 모달 */}
@@ -233,6 +231,7 @@ const Lobby = () => {
                 btnInviteClose={btnInviteClose} /> : null }
         </div>
         </>
+
     );
  
 }

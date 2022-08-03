@@ -38,6 +38,7 @@
 /* design : search box */
 
 .searchBox {
+    visibility: hidden;
     left: 530px;
     top: -13px;
     margin: 40px 40px;
