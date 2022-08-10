@@ -1,70 +1,75 @@
-# Getting Started with Create React App
+# MafiArte
+### 마피아르떼는 제시어를 그림으로 그리면서 마피아를 찾는 게임입니다.
+<br>
+<img src="https://user-images.githubusercontent.com/96710052/183819911-275000f1-2cb7-4ea2-91ef-7435e6e93f23.png">
+<br><br>
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 🛠 **아키텍처와 기술 스택**
+**CLIENT**　 　React / Redux / WebRTC <br>
+**SERVER**　　Node.js / NGiNX / socket.io <br>
+**DB**　　　　 MySQL / RDS <br>
+<br><br>
 
-## Available Scripts
+## 🎠 **몰입도 120% : 인게임 요소**
+#### 🎥 **비디오 섹션**
+지금 그리고 있는 유저를 살펴보고 의심가는 유저는 클릭해서 확대할 수 있습니다.
 
-In the project directory, you can run:
+#### ⏱ **제시어 & 타이머**
+제시어는 시민에게만 공개되고, 타이머는 게임 플로우를 관리합니다.
 
-### `yarn start`
+#### 🌈 **턴 알리미**
+현재 턴이 끝나기 3초 전에 다음 턴 유저의 테두리가 깜빡거리며 순서를 알려 줍니다.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+#### 😍 **이모지 채팅**
+감정을 즉각적으로 표현할 수 있고, 죽은 유저의 표현 수단으로 활용할 수 있습니다.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+#### 🎨 **캔버스**
+자신의 순서가 되면 원하는 색을 골라 즐겁게 그릴 수 있습니다.
 
-### `yarn test`
+#### 📣 **채팅**
+게임 대기 시간에도, 게임 중에도 채팅으로 소통할 수 있습니다.
+<br><br><br>
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `yarn build`
+## 🕹 **게임모드 : 게임별 이벤트 관리를 위한 객체**
+* 게임 이벤트와 관련 데이터 관리를 위한 class입니다.
+* 마피아르떼의 게임모드는 게임이 규칙에 따라 진행될 수 있도록 합니다.
+```
+class Game {
+  constructor(gameId) {
+        this.maxCnt = 8;
+        this.gameId = gameId;
+        this.socketAll = [];    // 게임 플레이어들의 소켓 정보 배열
+        this.joinable = true;   // 게임 접근 가능 여부
+        this.playerCnt = 0;     // 게임 플레이어 수 (max 파악용)
+         .
+         .
+         .
+        this.player = [];       // 게임에 접속한 유저 객체 원본
+        this.turnQue = [];      // 게임 진행 순서 (queue)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+        this.turnCnt = 0;       // 사이클 내의 턴 진행 상황
+        this.cycleCnt = 0;      // 게임 반복 횟수
+        this.nightDone = 0;     // night work를 마친 유저의 수 (데이터 리턴 조건 체크용)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+        this.voteRst = null;    // 시민 투표에서 선출된 사람
+        this.guessRst = false;  // 마피아 정답 결과 (boolean)
+  }
+}
+```
+<br><br>
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🤸‍♀️ 영상 레이턴시 개선 : 원활한 영상 통화
+게임 접속 인원에 따라 해상도, 프레임레이트, 비트레이트를 유동적으로 조절해 데이터 전송량을 줄였습니다.
+<br>
+<p align="center">
+<img src="https://user-images.githubusercontent.com/96710052/183824111-0f983085-23a0-4e9b-be34-2002292b1d2e.png" style="width: 800px;">
+</p>
+<br><br>
 
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## ⛷ 캔버스 레이턴시 개선 : 시원하게 쭉- 그리기
+코어 기능인 그림 그리기를 원활하게 할 수 있도록 데이터 전송량을 줄였습니다.
+<br>
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/96710052/183824113-ea3ab3e1-a706-443c-b52a-e4144bbddab7.png" style="width: 800px;">
+</p>
