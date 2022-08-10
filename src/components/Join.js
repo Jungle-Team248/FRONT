@@ -36,7 +36,6 @@ const Join = () => {
     
     // submit > post + 중복 검사
     const handleOnSubmit = async () => {
-        // console.log(cId, cPass, cPassCheck, cNickname, cEmail)
         if (cId && cPass && cPassCheck && cNickname && cEmail){
             try {
                 await axios.post(`${paddr}api/auth/user/join`, {
@@ -51,14 +50,13 @@ const Join = () => {
                         alert("가입이 완료되었습니다. 지금 바로 Mafia가 되어 보세요!")
                         handleClose()
                     } else {
-                        // console.log("join failed", data)
                         if (!data.idCheck) { setEId('이미 가입되어 있는 아이디입니다. 다른 아이디를 입력하세요.')}
                         if (!data.nickCheck) {setENickname('이미 사용하고 있는 닉네임입니다. 다른 닉네임을 입력하세요.')}
                         if (!data.emailCheck) {setEEmail('이미 사용하고 있는 이메일 주소입니다. 다른 이메일을 입력하세요.')}
                     }
                 })
-            } catch {
-                console.log('error');
+            } catch (e) {
+                console.log(e);
             }
         }
     }

@@ -2,7 +2,6 @@ import {React, useEffect, useState} from 'react';
 import { Howl } from 'howler';
 import Login from './Login';
 import Join from './Join';
-// import 'bootstrap/dist/css/bootstrap.min.css';
 import style from "../css/Main.module.css";
 import Birds from "../subitems/Birds";
 import BGM from "./main_culture.mp3";
@@ -20,46 +19,46 @@ const Main = () => {
         setJoin(!join);
     }
 
-    // const useSound = (src, volume = 1, fadeoutTime = 0) => {
-    //     let sound;
-    //     const soundStop = () => sound.stop();
-    //     const soundPlay = (src) => {
-    //         sound = new Howl({ src });
-    //         sound.volume(volume);
-    //         sound.loop(true);
-    //         sound.play();
-    //     }
+    const useSound = (src, volume = 1, fadeoutTime = 0) => {
+        let sound;
+        const soundStop = () => sound.stop();
+        const soundPlay = (src) => {
+            sound = new Howl({ src });
+            sound.volume(volume);
+            sound.loop(true);
+            sound.play();
+        }
     
-    //     useEffect(() => {
-    //         soundPlay(src);
-    //         sound.on('play', () => {
-    //             const fadeouttime = fadeoutTime;
-    //             setTimeout(() => sound.fade(volume, 0, fadeouttime), (sound.duration() - sound.seek()) * 1000 - fadeouttime);
-    //         });
-    //         return soundStop;
-    //     }, []);
-    // }
+        useEffect(() => {
+            soundPlay(src);
+            sound.on('play', () => {
+                const fadeouttime = fadeoutTime;
+                setTimeout(() => sound.fade(volume, 0, fadeouttime), (sound.duration() - sound.seek()) * 1000 - fadeouttime);
+            });
+            return soundStop;
+        }, []);
+    }
     
-    // const effectSound = (src, volume = 1) => {
-    //     let sound;
-    //     const soundInject = (src) => {
-    //         sound = new Howl({ src });
-    //         sound.volume(volume);
-    //     }
-    //     soundInject(src);
-    //     return sound;
-    // }
+    const effectSound = (src, volume = 1) => {
+        let sound;
+        const soundInject = (src) => {
+            sound = new Howl({ src });
+            sound.volume(volume);
+        }
+        soundInject(src);
+        return sound;
+    }
 
-    // const crowEffect = effectSound(CROW, 1);
+    const crowEffect = effectSound(CROW, 1);
     
-    // useSound(BGM, 1, 20000);
+    useSound(BGM, 1, 20000);
     
-    // useEffect(() => {
-    //     const crowS = setInterval(()=>{
-    //         crowEffect.play();
-    //     }, 8000);
-    //     return() => clearInterval(crowS);
-    // }, []);
+    useEffect(() => {
+        const crowS = setInterval(()=>{
+            crowEffect.play();
+        }, 8000);
+        return() => clearInterval(crowS);
+    }, []);
 
     return (
         <>

@@ -54,10 +54,8 @@ function VoteTimer(props){
             } 
             else if (voteTimer === 0) {
                 if (props.word != '?'){
-                    // console.log('뽑힌 사람', props.submitVote);
                     socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: props.submitVote}});
                 } else {
-                    // console.log('제출한 제시어', props.submitWord);
                     socket.emit("nightEvent", {gameId: props.roomId, userId: props.myId, gamedata: {submit: props.submitWord}});
                 }
                 props.becomeNightState(false); // 투표 창이 사라짐 setTimeout?
@@ -77,7 +75,6 @@ const NightEventForMafia = (props) => {
       const [ submitWord, submitWordState ] = useState(null); // 제시어 제출 @ 타이머
 
       const submitTmp = () => {
-        //   console.log(`마피아 정답 : ${inputValue}`);
           submitWordState(inputValue);
       }
   
@@ -128,7 +125,6 @@ const VoteVideoFor4 = ({submitVoteState}) => {
     const [ clickedIndex, setClickedIndex ] = useState(null);
 
     const submitAnswer = (answer, index) => {
-        // console.log(`투표 결과 ${answer}`);
         setClickedIndex(index);
         setClick(true);
         submitVoteState(answer);
@@ -155,7 +151,6 @@ const VoteVideoFor6 = ({submitVoteState}) => {
     const [ clickedIndex, setClickedIndex ] = useState(null);
 
     const submitAnswer = (answer, index) => {
-        // console.log(`투표 결과 ${answer}`);
         setClickedIndex(index);
         setClick(true);
         submitVoteState(answer);
@@ -183,7 +178,6 @@ const VoteVideoFor8 = ({submitVoteState}) => {
     const [ clickedIndex, setClickedIndex ] = useState(null);
 
     const submitAnswer = (answer, index) => {
-        // console.log(`투표 결과 ${answer}`);
         setClickedIndex(index);
         setClick(true);
         submitVoteState(answer);

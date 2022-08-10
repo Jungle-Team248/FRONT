@@ -12,22 +12,22 @@ import MyFriend, {FriendAddModal} from '../subitems/MyFriend';
 import GameRoom from '../subitems/GameRoom';
 
 const Lobby = () => {
-    const myId = useSelector(state => state.user.id);
+    const myId = useSelector(state => state.user.id);                       
     const profile_img = useSelector(state => state.user.profile_img);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    let [choose, choosestate] = useState(false);   // 초대할 사람 고르는 모달 생성
-    let [invite, invitestate] = useState(false);   // 초대 알람 모달 생성
-    let [newRoomId,roomidstate] = useState(0);
-    const [ socketConnected, setSocketConnected ] = useState(false);
-    let [sender, senderstate] = useState("");
-    const [ friendAddModal, showFriendAddModal ] = useState(false);
 
-    // START 버튼 - 랜덤 매칭 
+    let [choose, choosestate] = useState(false);                        // Make a Game으로 방 생성 시 초대할 사람 고르는 모달 표시
+    let [invite, invitestate] = useState(false);                        // 초대 알람 모달 표시
+    const [ friendAddModal, showFriendAddModal ] = useState(false);     // 친구 추가 모달 표시
+    let [newRoomId,roomidstate] = useState(0);
+    const [ socketConnected, setSocketConnected ] = useState(false);    // 소켓 연결 상태
+    let [sender, senderstate] = useState("");                           // 초대를 보낸 사람의 id
+
+    // START 버튼 - 빈 방으로 자동 입장
     const btnStart = () => {
         /*** gamemode hyeRexx ***/
         socket && socket.emit("joinGame", {gameId : 0, userId : myId}, (thisGameId) => {
-            // console.log("__debug : get this game id? :", thisGameId);
             if (!thisGameId) {
                 window.location.reload();
             }
@@ -37,8 +37,9 @@ const Lobby = () => {
 
     // MAKE A GAME 버튼 - HOST가 되어 게임방 생성
     const btnMake = () => {
-        // 초대할 사람 고르기
+        // 초대할 사람 고르는 모달 띄움
         choosestate(true);
+        invitestate(false);
         showFriendAddModal(false);
         // 초대자 state 변경
         senderstate(myId);
@@ -54,8 +55,10 @@ const Lobby = () => {
         invitestate(false); 
     };
 
+    // 로그아웃 버튼 클릭시 서버로 logout 요청
     const btnLogout = ()=>{
         axios.post(`${paddr}api/auth/logout`, null, reqHeaders).finally(()=>{
+            // 로그아웃 성공 시 다른 유저에게 로그아웃 알림 보내고 소켓 연결 중단, 메인으로 이동
             socket.emit('loginoutAlert', myId, 0);
             dispatch(FriendInfoReset());
             socket.close();
@@ -69,11 +72,13 @@ const Lobby = () => {
         history.pushState(null, "", location.href);
         window.addEventListener("popstate", preventBack);
 
-        // 소켓 연결 및 초기화
+        // 소켓 연결이 안되어있을 시 연결 및 초기화
         if (!socket || !socket['connected']) {
             connectSocket().then(() => {
+                // 소켓 연결상태를 state에 반영하여 자식 컴포넌트에서 소켓 연결 관련 처리 할 수 있도록 함
                 setSocketConnected(true);
 
+                // 친구 목록 변경사항 발생에 관한 event 발생시 redux에 변경사항 반영
                 socket.on("friendList", (userid, status) => {
                     if (userid === myId) {
                         (status === 0) && (()=>{
@@ -85,20 +90,25 @@ const Lobby = () => {
                     }
                 });
 
-                socket.emit("userinfo", myId);
-                socket.emit('loginoutAlert', myId, 1);
-
+                // 초대메세지 수신할 수 있도록 세팅
                 socket.on("getinvite", (roomId, myId)=> {
-                        // console.log('초대장을 받았습니다!');
                         
                         roomidstate(roomId);
                         senderstate(myId);
     
                         // 모달창 띄워주기
                         invitestate(true);
+                        showFriendAddModal(false);
+                        choosestate(false);
                 });
+
+                // 서버에 접속정보 반영요청, 유저들에게 login 했음을 알림
+                socket.emit("userinfo", myId);
+                socket.emit('loginoutAlert', myId, 1);
+
             });
         } else {
+            // 소켓이 이미 연결되어있는 경우(인게임에서 로비로 돌아온 경우) 친구 목록 갱신과 초대메세지 수신 가능하도록 처리
             setSocketConnected(true);
             socket.on("friendList", (userid, status) => {
                 if (userid === myId) {
@@ -117,20 +127,22 @@ const Lobby = () => {
 
                 // 모달창 띄워주기
                 invitestate(true);
+                showFriendAddModal(false);
+                choosestate(false);
             });
         }
 
-
+        // 친구 목록을 받아와 redux에 세팅
         axios.post(`${paddr}api/lobby/friendinfo`, {userid: myId}, reqHeaders)
         .then((res) => {
             let friendList = res.data;
-            // console.log("서버에서 받은 친구 목록:   ", friendList);
             dispatch(FriendInfoSet(friendList));
         })
         .catch((e) => {
             console.log(e);
         });
 
+        // clean up. unmount시 등록했던 eventlistener 초기화
         return () => {
             window.removeEventListener("popstate", preventBack);
             socket.off("friendList");
@@ -162,7 +174,7 @@ const Lobby = () => {
                 </div>
 
                 <div className={style.lobbyMiddle}> 
-                    <MyFriend showFriendAddModal={showFriendAddModal} choosestate={choosestate}/>
+                    <MyFriend showFriendAddModal={showFriendAddModal} choosestate={choosestate} invitestate={invitestate}/>
                 </div>
 
                 <div className={style.lobbyRight}>
@@ -174,9 +186,6 @@ const Lobby = () => {
                 </div>
 
             </div>
-            {/* <div className={style.MainLobbyTap}>
-                <button className={style.utilityBtn} id="logout" onClick={btnLogout}>LOGOUT</button>
-            </div> */}
 
             {/* 친구 초대 모달 */}
             { choose === true ? <InviteCard sender={sender} choose={choose} 

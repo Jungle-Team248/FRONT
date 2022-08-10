@@ -6,11 +6,9 @@ let user = createSlice({
   reducers : {
     setUserId(state, action){
         state.id = action.payload;
-        // console.log('redux setUserId: ', current(state));
     },
     setProfileImg(state, action){
         state.profile_img = action.payload;
-        // console.log('redux setProfileImg: ', current(state));
     }
 }
 });
@@ -22,11 +20,9 @@ let gameInfo = createSlice({
     turnStatusChange(state, action){
       state[0] = action.payload[0];
       state[1] = action.payload[1];
-      // console.log('redux turnStatusChange: ', current(state));
     },
     surviveStatusChange(state, action){
       state[2] = action.payload;
-      // console.log('redux surviveStatusChange: ', current(state));
     },
     clearGameInfo(state, action){
       return [null, null, 1];
@@ -59,17 +55,13 @@ let FriendInfo = createSlice({
   reducers : {
     FriendInfoSet(state, action){
       return action.payload;
-      // state[action.payload[0]] = action.payload[1];
-      // console.log('redux FriendInfoSet: ', current(state))
     },
     FriendInfoChange(state, action){
       if (state[action.payload[0]] !== undefined){
         state[action.payload[0]][0] = action.payload[1];
-        // console.log('redux FriendInfoChange: ',current(state));
       }
     },
     FriendInfoReset(state, action){
-      // console.log('redux FriendInfoReset');
       return {};
     },
     FriendInfoDelete(state, action){
@@ -84,7 +76,6 @@ let videoInfo = createSlice({
   reducers : {
     VideoStreamChange(state, action){
         state.stream = action.payload;
-        console.log("redux VideoStreamChange: ", current(state));
     },
     VideoStreamReset(state, action) {
         return {stream: null};
@@ -195,7 +186,6 @@ let videosStore = createSlice({
       state[action.payload[0]].stream = action.payload[2] === "asis" ? state[action.payload[0]].stream : action.payload[2];
       state[action.payload[0]].image = action.payload[3] === "asis" ? state[action.payload[0]].image : action.payload[3];
       state[action.payload[0]].isReady = action.payload[4] === "asis" ? state[action.payload[0]].isReady : action.payload[4];
-      console.log(current(state));
     },
     attributeChangeStore(state, action){
       state[action.payload[0]][action.payload[1]] = action.payload[2];
@@ -204,7 +194,6 @@ let videosStore = createSlice({
       let tempVideo = state[action.payload[0]];
       state[action.payload[0]] = state[action.payload[1]];
       state[action.payload[1]] = tempVideo;
-      console.log(current(state));
     },
     attributeMultiChangeStore(state, action){
       state.map((video) => {

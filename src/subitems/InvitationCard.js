@@ -12,7 +12,6 @@ const InvitationCard = (props) => {
         // 게임 조인
         socket.emit("joinGame", {gameId : props.roomId, userId : props.myId}, (thisGameId) => {
             // join 성공한 경우 넘겨준 gameId가 돌아옴. 실패한 경우 false가 돌아옴
-            // console.log("__debug : get this game id? :", thisGameId);
             if (thisGameId) {
                 navigate(`/ingame/${thisGameId}`, {state: {fromLobby: true}});
             } else {

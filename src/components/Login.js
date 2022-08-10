@@ -11,14 +11,15 @@ import { NotRequireAuth } from '../script/auth';
 
 // Login 컴포넌트 - Jack
 const Login = () => {
-    const [id, setId] = useState("");               // id 입력 저장
-    const [lableId, setLableId] = useState("ID");   // id 입력칸 lable 저장
-    const [pw, setPw] = useState("");               // pw 입력 저장
-    const [lablePw, setLablePw] = useState("PASSWORD"); // pw 입력칸 lable 저장
+    const [id, setId] = useState("");                       // id 입력 저장
+    const [lableId, setLableId] = useState("ID");           // id 입력칸 lable 저장
+    const [pw, setPw] = useState("");                       // pw 입력 저장
+    const [lablePw, setLablePw] = useState("PASSWORD");     // pw 입력칸 lable 저장
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
     
+    // Login Submit
     const onSubmit = (e) => {
         e.preventDefault();
         axios.post(`${paddr}api/auth/login`, {userid: id, password: pw}, reqHeaders)
@@ -35,6 +36,7 @@ const Login = () => {
             });
     };
 
+    // NotRequireAuth - 서버에 로그인이 되어있는지 확인 후 로그인 되어있으면 lobby로 이동, 안되어있는 경우에만 로그인 화면 띄움
     return (
         <NotRequireAuth>
             <Form onSubmit={onSubmit}>

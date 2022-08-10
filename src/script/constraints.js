@@ -1,3 +1,11 @@
+/**
+ * Jack - 영상 레이턴시 개선
+ * P2P 방식 한계로 peer간의 연결 수와 데이터 양이 peer의 증가에 따라 크게 증가함
+ * 게임 진행에 필요한 정도의 데이터만 보낼 수 있도록 데이터 양 제한하는 방법 적용
+ * 정확하게 계산할 수는 없지만, 비교적 원활한 3명을 기준으로 상대적으로 계산함
+ * 데이터양 = (해상도 x framerate) x 인원수 x 2 (up/down이 같다는 가정하에 2배)
+ */
+
 const constraints = [
     true, // test - high quality
     { // default

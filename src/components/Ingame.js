@@ -15,30 +15,32 @@ import GameLoader from '../subitems/GameLoader';
 import EmojiBox from '../subitems/EmojiBox';
 
 const Ingame = ({roomId}) => {
-    const [ roomEntered, setRoomEntered ] = useState(false);
-    const [ isHost, setHost ] = useState(false);
-    const [ readyToStart, setReadyToStart ] = useState(false);  // 레디가 다 눌렸나?
-    const [ isStarted, setStart ] = useState(0);             // 로딩 끝나고 게임 시작됐나?
-    const [ turnQue, setTurnQue ] = useState(null);             // 턴 저장 state
-    const [ word, setWord ] = useState({category: "", word: ""});
-    const [ showWord, setShowWord ] = useState(false);          // 단어 보여줄지 여부
+    const [ roomEntered, setRoomEntered ] = useState(false);            // 게임 방 입장을 위해 필요한 기본적인 socket listener 등록을 선 진행하기 위한 switching state. 기본 세팅 완료 후 true 세팅 시 실제 ingame 요소 렌더링 진행.
+    
+    const [ isHost, setHost ] = useState(false);                        // 방장인지 확인
+    const ingameStates = useSelector(state => state.ingameStates);      // ready상태, myStream load상태
+    const [ readyToStart, setReadyToStart ] = useState(false);          // 방장 - 모든 플레이어가 ready 완료시 start 버튼 활성화
 
-    let [ becomeNight, becomeNightState ] = useState(false);    // 밤 Event (투표, 제시어 제출)
-    let [ voteResultModal, voteResultState ] = useState(false); // 투표 결과 모달
-    let [ resultModal, resultModalState ] = useState(false);    // 최종 결과 모달
-    let [ result, setResult ] = useState(null);                 // 최종 결과 
-    let [ needVideos, setNeedVideos ] = useState(null);         // 투표 시 비디오 필요 신호
-    let [ voteNumber, voteNumberState ] = useState(null);       // 투표 결과
-    let [ endGame, setEndGame ] = useState(false);              // 게임 종료 신호 (종료 : true)
-    let [ deadMan, setDeadMan ] = useState(null);
-    let [ readyAlert, setReadyAlert] = useState(0);
-    let [ mafiaIs, setMafia ] = useState("");
+    const [ isStarted, setStart ] = useState(0);                        // 0 - 게임 시작 전, 1 - 게임 시작 (게임 로딩화면 표시), 2 - 게임 시작 (턴 시작)
+    const [ turnQue, setTurnQue ] = useState(null);                     // 턴 저장 state
+    const [ word, setWord ] = useState({category: "", word: ""});       // 제시어 저장 state
+    
+    const [ showWord, setShowWord ] = useState(false);                  // 제시어 카드 표시
+    let [ voteNumber, voteNumberState ] = useState(null);               // 투표 결과 저장
+    let [ voteResultModal, voteResultState ] = useState(false);         // 투표 결과 모달 표시
+    let [ deadMan, setDeadMan ] = useState(null);                       // 투표로 탈락된 player 세팅
+    let [ result, setResult ] = useState(null);                         // 최종 결과 저장
+    let [ mafiaIs, setMafia ] = useState("");                           // 게임 종료시 마피아 정체 저장
+    let [ resultModal, resultModalState ] = useState(false);            // 최종 결과 모달 표시
+    let [ becomeNight, becomeNightState ] = useState(false);            // 밤 Event (투표, 제시어 제출)
+
+    let [ readyAlert, setReadyAlert] = useState(0);                     // 턴 체인지 3초 전 알림
+    let [ endGame, setEndGame ] = useState(false);                      // 게임 종료 신호 (종료 : true)
 
     const myId = useSelector(state => state.user.id);
     const myImg = useSelector(state => state.user.profile_img);
-    const gameUserInfo = useSelector(state => state.gameInfo);  // 현재 turn인 user id, 살았는지 여부
-    const videoList = useSelector(state => state.videosStore);
-    const ingameStates = useSelector(state => state.ingameStates); // ready상태, myStream load상태
+    const gameUserInfo = useSelector(state => state.gameInfo);          // 현재 turn인 user id, 살았는지 여부
+    const videoList = useSelector(state => state.videosStore);          // 비디오 영역의 플레이어 배치, stream 등 저장
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -49,7 +51,7 @@ const Ingame = ({roomId}) => {
     };
 
     useEffect(()=>{
-    //socket event name 변경 필요
+        // 로비를 통해 접근한 경우에만 통과. 주소로 직접 접근한 경우 비정상적 접근으로 판단.
         if (location.state?.fromLobby !== true) {
             alert("비정상적인 접근입니다. 메인페이지로 이동합니다.");
             window.location.replace("/");
@@ -60,26 +62,24 @@ const Ingame = ({roomId}) => {
         // 새로운 유저 입장 알림 => 기존에 welcome에서 방 입장 알려주는거랑 유사
         socket.on("notifyNew", (data) => {
             // data : userId : 입장 유저의 userId
-            console.log("debug : notifyNew :", data);
             dispatch(pushNewPlayer({userId: data.userId, userImg: data.userImg, isReady: data.isReady}));
             socket.emit("notifyOld", {userId: myId, userImg: myImg, isReady: ingameStates.isReady}, data.socketId);
         });
 
+        // 입장해있던 유저 알림
         socket.on("notifyOld", (data) => {
-            console.log("debug : notifyOld : ", data);
             dispatch(pushNewPlayer(data));
         });
 
         // start 가능 알림 : for host 
         socket.on("readyToStart", (data) => {
             // data : readyToStart : true
-            console.log("debug : reayToStart :", data);
             setReadyToStart(data.readyToStart);
         });
 
+        
+        // start버튼이 눌린 후부터 영상 연결, 턴 결정 등 게임시작에 필요한 준비가 완료되기 전까지 준비화면 띄울 수 있도록 신호받음
         socket.on("waitStart", () => {
-            // start버튼이 눌린 후부터 영상 연결, 턴 결정 등 게임시작에 필요한 준비가 완료되기 전까지 준비화면 띄울 수 있도록 신호받음
-            // console.log("waitStart event received");
             setEndGame(false);
             setStart(1);
             dispatch(clearReady());
@@ -89,9 +89,7 @@ const Ingame = ({roomId}) => {
         // game 시작 알림, 첫 번째 턴을 제공받음
         socket.on("gameStarted", (data) => {
             // data : {turnInfo : turn info Array, word : {category, word} Object}
-            // console.log("debug : gameStarted :", data);
             setWord(data.word);
-            // word = data.word;
             setStart(2);
             setTurnQue(data.turnInfo);
             setTimeout(()=>{
@@ -111,16 +109,13 @@ const Ingame = ({roomId}) => {
             if (!endGame) {
                 dispatch(turnStatusChange(data.userId));
             }
-            // console.log("debug : singleTurnInfo :", data);
         });
 
         /* 밤이 되었습니다 화면 띄우고 투표 / 정답 입력 띄우기 */
         // 한 사이클이 끝났음에 대한 알림
         // data 없음! : turn info도 전달하지 않음
         socket.on("cycleClosed", (data) => {
-            // console.log('죽은 사람 리스트', data);
             changeReadyAlert(0);
-            // setNeedVideos(true); // 비디오 필요하다는 신호 전송, 필요없음.
             becomeNightState(true);
         });
 
@@ -128,32 +123,25 @@ const Ingame = ({roomId}) => {
         // nightEvent 요청에 대한 진행 보고
         socket.on("nightResult", (data) => {
             setTimeout(() => {
-                setNeedVideos(false); // 비디오 필요하다는 신호 초기화
-                
                 dispatch(VideoStreamReset());
                 
                 voteNumberState(data.voteData); // 투표 수치
                 voteResultState(true); // 투표 결과 모달
-                // console.log('결과', data.win);
     
                 let end = 0;
                 if (data.win == "mafia") {
-                    // console.log("마피아 승!");  
                     setMafia(data.mafia);
                     setResult(1);
                     end = 1;
                 } else if (data.win == "citizen") {
-                    // console.log("시민 승!");
                     setMafia(data.mafia);
                     setResult(2);
                     end = 1;
                 } else if (data.elected) {
-                    // console.log("무고하게 죽은 시민", data.elected); // 다음 판 다시 시작
                     setDeadMan(data.elected);
                     setResult(3);
                     if (data.elected === myId){ dispatch(surviveStatusChange(0)); } 
                 } else {
-                    // console.log("오늘 밤은 아무도 죽지 않았습니다"); // 다음 판 다시 시작
                     setResult(4);
                 }
                 setTimeout(()=> {
@@ -167,7 +155,6 @@ const Ingame = ({roomId}) => {
                     }, 7000);
                 }, 4000);
             }, 1000);
-            // console.log("debug : nightResult :", data);
         });
 
         // 누군가의 exit에 의해 host가 바뀌었는데 자신일 경우 setHost
@@ -181,10 +168,8 @@ const Ingame = ({roomId}) => {
         socket.on("abnormalClose", (data) => {
             setEndGame(true);
             if (data.win == "mafia") {
-                // console.log("마피아 승!");  
                 setResult(1);
             } else if (data.win == "citizen") {
-                // console.log("시민 승!");
                 setResult(2);
             }
             resultModalState(true);
@@ -199,7 +184,6 @@ const Ingame = ({roomId}) => {
         // 게임중, 대기상태 모두 같은 이벤트
         socket.on("someoneExit", (exiterId) => {
             // data : exit user Id
-            console.log(`debug : ${exiterId} exit`);
             dispatch(pushExiter(exiterId));
             // setExiter(exiterId);
         });
@@ -207,7 +191,6 @@ const Ingame = ({roomId}) => {
         /*** for game : hyeRexx : end ***/
 
         socket.on("friendList", (userid, status) => {
-            // console.log("friend수정확인",userid, status);
             if (userid === myId) {
                 (status === 0) && (()=>{
                     // doUnMount(true);
@@ -222,14 +205,14 @@ const Ingame = ({roomId}) => {
             }
         });
 
+        // listner 세팅 완료 후 방에 입장 알림
         socket.emit("enterRoom", {userId: myId, userImg: myImg, socketId: socket.id, isReady: ingameStates.isReady}, Number(roomId), (host)=>{
             (myId === host) && setHost(true);
             setRoomEntered(true);
-            // console.log("Ingame Room Enter Success");
         });
 
+        // 기존에 등록된 event listner 삭제
         return () => {
-            // 기존에 등록된 event listner 삭제
             dispatch(clearReady());
             dispatch(clearChatNewPlayer());
             dispatch(clearVideoWindowNewPlayer());
@@ -252,10 +235,10 @@ const Ingame = ({roomId}) => {
         };
     },[]);
 
+    // Jack - 게임 종료시 game 관련 data 초기화
     useEffect(() => {
         endGame && (() => {
             setWord({category: "", word: ""});
-            // word = null;
             setStart(0);
             setDeadMan(null);
             dispatch(turnStatusChange([null, null]));
@@ -295,13 +278,6 @@ const Ingame = ({roomId}) => {
         });
     };
 
-    // error handler 용도 - 인게임에서 에러 발생하면 콘솔 띄우고 그냥 방에서 튕김 -> 로그 확인해서 디버깅하기
-    // window.addEventListener("error", (e)=>{
-    //     e.preventDefault();
-    //     console.log(`error 발생 : ${e}`);
-    //     btnExit();
-    // });
-
     return (
         <>
         {
@@ -319,7 +295,8 @@ const Ingame = ({roomId}) => {
                       <div className={style.outbox}>
                           <div className={style.flexBox}>
                               <div className={style.item1}>
-                                  <VideoWindow readyAlert={readyAlert} isStarted={isStarted} endGame={endGame} needVideos={needVideos} deadMan={deadMan}/>
+                                    {/* Video 영역 */}
+                                  <VideoWindow readyAlert={readyAlert} isStarted={isStarted} endGame={endGame} deadMan={deadMan}/>
                               </div>
   
                               <div className={style.item2}>
@@ -357,7 +334,6 @@ const Ingame = ({roomId}) => {
                       <div className={style.topSection}>
                           {/* design : utility buttons */}
                           <div className={style.utility}>
-                              {/* <button className={`${style.utilityBtn} ${style.invite}`}>INVITE</button> */}
                               <button className={`${style.utilityBtn} ${style.exit}`} onClick={btnExit}>EXIT</button>
                           </div>                    
                           {/* design : utility buttons : END */}
@@ -421,25 +397,25 @@ const Ingame = ({roomId}) => {
   
 function Timer(props){
 
-    const [timer, setTimer] = useState(0);
+    const [timer, setTimer] = useState(0);      // 타이머
 
+    // 턴 정보 넘어오면 타이머 시작
     useEffect(() => {
         if (props.nowplayer != null){
             props.changeReadyAlert(0)
             setTimer(17);
         }
-    }, [props.nowplayer])
+    }, [props.nowplayer]);
 
+    // 비정상적으로 게임이 종료되면 타이머 초기화
     useEffect(() => {
         if (props.endGame) {
             setTimer(0);
         }
     }, [props.endGame]);
 
+    // 타이머 동작
     useEffect (() => {
-        // if (props.endGame) {
-        //     return ()=>{const a = null;};
-        // }
         if (props.nowplayer !== null){
             if (timer !== 0) {
                 if (timer === 3){
@@ -464,14 +440,11 @@ function Timer(props){
         </>
     )
 }
-// voteNumber.filter(voteNumber => videoList.filter(user => user.userid === voteNumber[0])[0]?.isDead === false)
-  // 투표 결과 모달
-  function VoteResultModal(props) {
-    //   console.log('voteNumber test debugging before ::', voteNumber);
-      const voteNumber = Object.entries(props.voteNumber);// voteNumber => userid, 득표수
-    //   console.log('voteNumber test debugging after ::', voteNumber);
 
-      return (
+// 투표 결과 모달
+function VoteResultModal(props) {
+    const voteNumber = Object.entries(props.voteNumber);// voteNumber => userid, 득표수
+    return (
             <div className={style.turnBoard}>
                 <div className={style.turnBoardTitle}> VOTE RESULT </div>
                 {voteNumber.map((voteNumber)=> {
@@ -483,32 +456,30 @@ function Timer(props){
                     );
                 })}
             </div>
-
-      )
+    )
+};
   
-  };
-  
-  // 최종 결과 모달
-  function ResultModal(props) {
-      const finalResult = props.result;
-      const deadMan = props.deadMan;
-      const mafia = props.mafia;
-      const userStream = useSelector((state) => state.videosStore);
-      const mafiaStream = userStream.filter(x => x.userid === mafia);
-      const dieStream = userStream.filter(x => x.userid === deadMan);
-      const [greyValue, setGreyValue] = useState(false);
+// 최종 결과 모달
+function ResultModal(props) {
+    const finalResult = props.result;
+    const deadMan = props.deadMan;
+    const mafia = props.mafia;
+    const userStream = useSelector((state) => state.videosStore);
+    const mafiaStream = userStream.filter(x => x.userid === mafia);
+    const dieStream = userStream.filter(x => x.userid === deadMan);
+    const [greyValue, setGreyValue] = useState(false);
 
-      useEffect(() => {
+    useEffect(() => {
         setTimeout(() => {
             setGreyValue(true);
         }, 2000)
-      }, [deadMan])
+    }, [deadMan])
 
-      return (
-      <>
-          <div  className={style.totalResult} style={{width: "680px", textAlign: "center"}}>
-          <div className={style.turnBoardTitle}> TOTAL RESULT </div>
-          { finalResult === 1? 
+    return (
+        <>
+            <div  className={style.totalResult} style={{width: "680px", textAlign: "center"}}>
+            <div className={style.turnBoardTitle}> TOTAL RESULT </div>
+            { finalResult === 1? 
             <>
                 <div>
                     { mafiaStream.length ?  <Video stream={mafiaStream[0].stream} muted={true}/> : null }
@@ -516,7 +487,7 @@ function Timer(props){
                 <p><span className={style.turnId}>마피아 {mafia}이(가) 승리했습니다!</span></p>
             </>
             : null }
-          { finalResult === 2? 
+            { finalResult === 2? 
             <>
                 <p><span className={style.turnId}>시민이 승리했습니다!</span></p>
                 <div>
@@ -533,10 +504,10 @@ function Timer(props){
                 </div>
             </>
             : null }
-          { finalResult === 4? <span className={style.turnId}>오늘 밤은 아무도 죽지 않았습니다...</span>: null }
-          </div> 
-      </>
-      )
-  };
-  
-  export default Ingame;
+            { finalResult === 4? <span className={style.turnId}>오늘 밤은 아무도 죽지 않았습니다...</span>: null }
+            </div> 
+        </>
+    )
+};
+
+export default Ingame;

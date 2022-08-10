@@ -5,8 +5,8 @@ import style from './css/GameRoom.module.css';
 import { useNavigate } from 'react-router-dom';
 
 const GameRoom = ({socketConnected}) => {
-    const [ rooms, setRooms ] = useState(null);
-    const [ joinFail, setJoinFail ] = useState(0);
+    const [ rooms, setRooms ] = useState(null);     // 게임 방들의 배열
+    const [ joinFail, setJoinFail ] = useState(0);  // 입장 실패시 값을 +1, 변경 발생시 게임 방 목록을 reload 함
 
     // 소켓 연결되면 roomList 받아오서 세팅
     useEffect(() => {
@@ -18,7 +18,7 @@ const GameRoom = ({socketConnected}) => {
             });
         }
     }, [socketConnected]);
-
+    
     // 입장 실패하면 서버로부터 새로 리스트 받아오기
     useEffect(() => {
         if ( joinFail ) {
@@ -51,23 +51,19 @@ const GameRoom = ({socketConnected}) => {
 const SingleGameRoom = ({status, hostId, count, roomId, joinFail}) => {
     const myId = useSelector(state => state.user.id);
     const navigate = useNavigate();
-    const joinRoom = (roomId) => {
-        // sample alert
-        alert('게임에 입장이 불가합니다. 다른 방으로 참여해주세요!');
-        joinFail.set(joinFail.state + 1);
 
-        // real join
-        // socket.emit("joinGame", {gameId : roomId, userId : myId}, (thisGameId) => {
-        //     // join 성공한 경우 넘겨준 gameId가 돌아옴. 실패한 경우 false가 돌아옴
-        //     // console.log("__debug : get this game id? :", thisGameId);
-        //     if (thisGameId) {
-        //         navigate(`/ingame/${thisGameId}`, {state: {fromLobby: true}});
-        //     } else {
-        //         joinFail.set(joinFail.state + 1);
-        //         alert('게임에 입장이 불가합니다. 다른 방으로 참여해주세요!');
-        //         // 입장에 실패한 경우 부모컴포넌트의 joinFail을 +1된 값으로 변경, list를 다시 불러옴
-        //     }
-        // });
+    // 방 클릭 시 join 시도. 실패시 reload 위해 joinFail의 값 변경
+    const joinRoom = (roomId) => {
+        socket.emit("joinGame", {gameId : roomId, userId : myId}, (thisGameId) => {
+            // join 성공한 경우 넘겨준 gameId가 돌아옴. 실패한 경우 false가 돌아옴
+            if (thisGameId) {
+                navigate(`/ingame/${thisGameId}`, {state: {fromLobby: true}});
+            } else {
+                joinFail.set(joinFail.state + 1);
+                alert('게임에 입장이 불가합니다. 다른 방으로 참여해주세요!');
+                // 입장에 실패한 경우 부모컴포넌트의 joinFail을 +1된 값으로 변경, list를 다시 불러옴
+            }
+        });
     };
 
     return (

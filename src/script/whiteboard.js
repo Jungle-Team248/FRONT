@@ -49,20 +49,6 @@ export class Whiteboard {
             this._emitDrawingData(e);
           } 
         }
-        // if (e.buttons === 1) { // 왼쪽 버튼 눌렀을 때
-        //   this.ebuttons++;
-        //   console.log('총 왼쪽 버튼 눌린 개수', this.ebuttons);
-        //   // if (today.getMilliseconds() % 2 != 0) {
-        //     this.sent++;
-        //     console.log('서버로 전송한 점의 개수', this.sent);
-        //     this._emitDrawingData(e);
-        //   // } 
-        //   // else {
-        //     // this.saved++;
-        //     // console.log('굳이 전송하지 않은 점의 개수', this.saved);
-        //   // }
-        // }
-      
       });
   
       canvas.addEventListener('click', (e) => {

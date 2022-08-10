@@ -68,11 +68,8 @@ const Chat = ({roomId, endGame}) => {
     },[]);
 
     useEffect(()=>{
-        // console.log("여기는 들어오나?");
-        // console.log(`newPlayerBuffer.Chat.length : ${newPlayerBuffer.Chat.length}`);
         if (newPlayerBuffer.Chat.length) {
             newPlayerBuffer.Chat.forEach(newPlayer => {
-                // console.log("여기 들어오나?");
                 addMessage(`${newPlayer.userId} 님이 입장하셨습니다.`);
             })
             dispatch(clearChatNewPlayer());

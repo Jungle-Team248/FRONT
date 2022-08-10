@@ -6,7 +6,7 @@ import style from './css/MyFriend.module.css';
 import CloseBtn from './CloseBtn';
 import { FriendInfoDelete } from '../store';
 
-const MyFriend = ({showFriendAddModal, choosestate}) => {
+const MyFriend = ({showFriendAddModal, choosestate, invitestate}) => {
     const dispatch = useDispatch();
     const myId = useSelector(state => state.user.id);
     const FriendInfo = useSelector((FriendInfo) => FriendInfo.FriendInfo);
@@ -16,6 +16,7 @@ const MyFriend = ({showFriendAddModal, choosestate}) => {
         e.preventDefault();
         showFriendAddModal(true);
         choosestate(false);
+        invitestate(false);
     }
 
     const FriendDelete = (id) => {
@@ -24,7 +25,6 @@ const MyFriend = ({showFriendAddModal, choosestate}) => {
             if (res.data == "SUCCESS"){
                 dispatch(FriendInfoDelete(id));
             }
-            // console.log("서버에서 받은 userId:   ", res.data);
         })
         .catch((e) => {
             console.log(e);
