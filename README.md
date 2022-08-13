@@ -4,6 +4,11 @@
 <img src="https://user-images.githubusercontent.com/96710052/183819911-275000f1-2cb7-4ea2-91ef-7435e6e93f23.png">
 <br><br>
 
+## **포스터**
+<br>
+<img src="https://user-images.githubusercontent.com/75101582/184475135-5618449a-5f0e-4d02-bbb1-105913308795.jpg">
+<br><br>
+
 ## 🛠 **아키텍처와 기술 스택**
 **CLIENT**　 　React / Redux / WebRTC <br>
 **SERVER**　　Node.js / NGiNX / socket.io <br>
