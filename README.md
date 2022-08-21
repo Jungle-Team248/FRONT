@@ -10,7 +10,7 @@
 <br><br>
 
 ## 🛠 **아키텍처와 기술 스택**
-**CLIENT**　 　React / Redux / WebRTC <br>
+**CLIENT**　 　React / Redux / WebRTC / CloudFront / S3 <br>
 **SERVER**　　Node.js / NGiNX / socket.io <br>
 **DB**　　　　 MySQL / RDS <br>
 <br><br>
